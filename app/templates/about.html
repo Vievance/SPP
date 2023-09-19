@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h1>Available Books</h1>
+    {% for book in books %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10">
+                <h2>{{ book.title }}</h2>
+                <p>By {{ book.author }}</p>
+                <p>ISBN {{ book.ISBN }}</p>
+            </div>
+            <div class="col-md-2 text-right">
+                <button class="btn btn-primary" style="background-color: #78bfe7; color: white;">Add to Basket</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock content %}

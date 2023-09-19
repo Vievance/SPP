@@ -1,2 +1,1 @@
-# SPP
-Stock Projection Project for Albany Beck
+# group-project-Vievance
