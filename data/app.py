@@ -28,7 +28,7 @@ vod = pd.read_csv("data/VOD.L.csv")
 zm = pd.read_csv("data/ZM.csv")
 
 stocks = [aapl, amzn, atvi, dbx, ea, goog, meta, nflx, ntdoy, para, pins, rblx, sono, sony, spot, tsco, tsla, vod, zm]
-ma_day = [10,20,50]
+
 stock_symbols = [
     "AAPL",
     "AMZN",
@@ -45,9 +45,9 @@ stock_symbols = [
     "SONO",
     "SONY",
     "SPOT",
-    "TSCO",
+    "TSCO.L",
     "TSLA",
-    "VOD",
+    "VOD.L",
     "ZM"
 ]
 stock_data = []
@@ -56,19 +56,48 @@ for symbol in stock_symbols:
     stock_df = pd.read_csv(file_path)
     stock_data.append(stock_df)
 
-# Create a DataFrame for adjusted closing prices
-adj_close_df = pd.concat([df.set_index("Date")["Adj Close"].rename(symbol) for symbol, df in zip(stock_symbols, stock_data)], axis=1)
+def annotate_heatmap(data, fmt=".2f", fontsize=10, ax=None, cmap="coolwarm"):
+    if ax is None:
+        ax = plt.gca()
+    # Fill both upper and lower triangles
+    mask = np.tri(data.shape[0], k=-1)
+    data = np.nan_to_num(data)  # Convert NaNs to 0 for annotation
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            text_color = "black" if data[i, j] < 0.5 else "white"  # Adjust text color based on background
+            ax.text(
+                j + 0.5,  # Adjust text position to center
+                i + 0.5,  # Adjust text position to center
+                format(data[i, j], fmt),
+                ha="center",
+                va="center",
+                fontsize=fontsize,
+                color=text_color,
+                rotation=45,  # Rotate the text by 45 degrees
+            )
 
-# Calculate the correlation matrix
-corr_matrix = adj_close_df.corr()
 
-# Create a correlation heatmap
-plt.figure(figsize=(12, 10))
-sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", linewidths=0.5)
-plt.title("Stock Price Correlation Heatmap")
-plt.show()
+def heatmap():
+    # Create a DataFrame for adjusted closing prices
+    adj_close_df = pd.concat([df.set_index("Date")["Adj Close"].rename(symbol) for symbol, df in zip(stock_symbols, stock_data)], axis=1)
+
+    # Calculate the correlation matrix
+    corr_matrix = adj_close_df.corr()
+
+    # Create a correlation heatmap with annotated values
+    plt.figure(figsize=(12, 10))
+    ax = sns.heatmap(corr_matrix, annot=False, cmap="coolwarm", linewidths=0.5, square=True)
+    annotate_heatmap(corr_matrix.values, ax=ax)
+    plt.title("Stock Price Correlation Heatmap")
+    plt.xticks(rotation=45)
+    plt.yticks(rotation=45)
+    plt.savefig("correlation_heatmap.png")
+    plt.show()
+heatmap()
+
 
 def moving_average():
+    ma_day = [10,20,50]
     for i in range(19):
         stock = stocks[i]
         stock['Date']= pd.to_datetime(stock['Date'])
