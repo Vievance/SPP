@@ -94,45 +94,9 @@ for symbol in stock_symbols:
     stock_df = pd.read_csv(file_path)
     stock_data.append(stock_df)
 
-def risk_return_analysis(stock_data, stock_names):
-    # Define a list of distinct colors
-    colors = ['blue', 'green', 'red', 'purple', 'orange', 'cyan', 'magenta', 'brown', 'pink', 'gray', 'lime', 'teal', 'navy', 'olive', 'maroon', 'sienna', 'slateblue', 'indigo', 'gold']
 
-    # Calculate daily returns for each stock
-    returns = pd.DataFrame({name: df['Adj Close'].pct_change().dropna() for name, df in zip(stock_names, stock_data)})
 
-    # Calculate mean returns and standard deviations
-    mean_returns = returns.mean()
-    std_returns = returns.std()
-
-    # Create a scatter plot of risk vs. expected return
-    plt.figure(figsize=(10, 6))
-    for i, name in enumerate(stock_names):
-        x_offset = 20 if name not in ['SONO', 'EA'] else -20  # Adjust the x-axis offset for specific stocks
-        plt.scatter(mean_returns[i], std_returns[i], s=100, c=colors[i])
-
-        # Adjust the x-axis offset for labels to remove overlap
-        label_x_offset = -40 if name in ['SONO', 'EA', 'META', 'AAPL'] else 20
-        plt.annotate(
-            name,
-            xy=(mean_returns[i], std_returns[i]),
-            xytext=(label_x_offset, 0),  # Adjust this value to control the x-axis offset for labels
-            textcoords='offset points', ha='left', va='center', color=colors[i])
-
-    plt.xlabel('Expected Return')
-    plt.ylabel('Risk')
-
-    plt.title("Risk vs. Expected Return")
-    plt.show()
-    plt.savefig('Risk_Plot.png')
-
-# Call the risk_return_analysis function with your stock data and names
-risk_return_analysis(stock_data, stock_symbols)
-
-# Call the risk_return_analysis function with your stock data and names
-risk_return_analysis(stock_data, stock_symbols)
-
-'''def annotate_heatmap(data, fmt=".2f", fontsize=10, ax=None, cmap="coolwarm"):
+def annotate_heatmap(data, fmt=".2f", fontsize=10, ax=None, cmap="coolwarm"):
     if ax is None:
         ax = plt.gca()
     # Fill both upper and lower triangles
@@ -190,15 +154,18 @@ def moving_average():
         plt.title(f"{stock_symbols[i]} Moving Averages")
         plt.savefig(f"{stock_symbols[i]}_ma.png")
 
-def hs_daily_returns():
+
+
+
+def daily_returns():
     for i in range(19):
         stock_df = stocks[i]  # Access the DataFrame by index
         stock_df['Daily Return'] = stock_df['Adj Close'].pct_change()
         sns.histplot(stock_df['Daily Return'].dropna(), bins=50, color='blue', kde=True)  # You can include the KDE curve
-        plt.ylabel("Density")
-        plt.xlabel("Daily Return")
+        plt.xlabel("Density")
+        plt.ylabel("Daily Return")
         plt.title(f"{stock_symbols[i]} Daily Returns")
         plt.savefig(f"{stock_symbols[i]}_daily_returns.png")
         plt.show()
 
-hs_daily_returns()'''
+daily_returns()
