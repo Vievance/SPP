@@ -6,7 +6,7 @@ import os
 from ta import add_all_ta_features
 from ta.utils import dropna
 
-
+#Stock Data Frames
 aapl = pd.read_csv("data/AAPL.csv")
 amzn = pd.read_csv("data/AMZN.csv")
 atvi = pd.read_csv("data/ATVI.csv")
@@ -29,70 +29,49 @@ zm = pd.read_csv("data/ZM.csv")
 
 ftse = pd.read_csv("data/FTSE.csv")
 
-paths = [
-    "data/AAPL.csv",
-    "data/AMZN.csv",
-    "data/ATVI.csv",
-    "data/DBX.csv",
-    "data/EA.csv",
-    "data/GOOG.csv",
-    "data/META.csv",
-    "data/NFLX.csv",
-    "data/NTDOY.csv",
-    "data/PARA.csv",
-    "data/PINS.csv",
-    "data/RBLX.csv",
-    "data/SONO.csv",
-    "data/SONY.csv",
-    "data/SPOT.csv",
-    "data/TSCO.L.csv",
-    "data/TSLA.csv",
-    "data/VOD.L.csv",
-    "data/ZM.csv"
-]
 
 stocks = [aapl, amzn, atvi, dbx, ea, goog, meta, nflx, ntdoy, para, pins, rblx, sono, sony, spot, tsco, tsla, vod, zm]
+stock_symbols = ["AAPL", "AMZN", "ATVI", "DBX", "EA", "GOOG", "META", "NFLX", "NTDOY", "PARA", "PINS", "RBLX", "SONO", "SONY", "SPOT", "TSCO.L", "TSLA", "VOD.L", "ZM"]
 
-'''def remove_close_volume_columns():
-    for i in range(19):
-
-        # Check if 'Close' and 'Volume' columns exist in the DataFrame
-        if 'Close' in stocks[i].columns and 'Volume' in stocks[i].columns:
-            # Drop the 'Close' and 'Volume' columns
-            stocks[i].drop(columns=['Close', 'Volume'], inplace=True)
-
-            # Save the modified DataFrame back to the same CSV file
-            stocks[i].to_csv(paths[i], index=False)
-
-# Usage example: Remove 'Close' and 'Volume' columns from CSV files in the 'data' directory
-remove_close_volume_columns()'''
-
-stock_symbols = [
-    "AAPL",
-    "AMZN",
-    "ATVI",
-    "DBX",
-    "EA",
-    "GOOG",
-    "META",
-    "NFLX",
-    "NTDOY",
-    "PARA",
-    "PINS",
-    "RBLX",
-    "SONO",
-    "SONY",
-    "SPOT",
-    "TSCO.L",
-    "TSLA",
-    "VOD.L",
-    "ZM"
-]
 stock_data = []
 for symbol in stock_symbols:
     file_path = os.path.join("data", f"{symbol}.csv")
     stock_df = pd.read_csv(file_path)
     stock_data.append(stock_df)
+
+def plot_stock_and_ftse(stock_symbols, ftse_data):
+    # Create a color palette for blue and green shades
+    colors = sns.color_palette("coolwarm", n_colors=len(stock_symbols))
+    
+    # Create a figure and axis
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    # Plot individual stock data
+    for i, symbol in enumerate(stock_symbols):
+        stock_df = stock_data[i]
+        ax.plot(stock_df['Date'], stock_df['Close'], label=symbol, color=colors[i])
+    
+    # Plot FTSE data in red
+    ax.plot(ftse_data['Date'], ftse_data['Close'], label='FTSE', color='red')
+    
+    # Fill the area between the blue/green lines and the red line
+    for i in range(len(stock_symbols)):
+        stock_df = stock_data[i]
+        ax.fill_between(stock_df['Date'], stock_df['Close'], ftse_data['Close'], where=(stock_df['Close'] > ftse_data['Close']), interpolate=True, color=colors[i], alpha=0.3)
+    
+    # Set labels and legend
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Price')
+    ax.set_title('Stock Prices vs. FTSE')
+    ax.legend(loc='upper left')
+    
+    # Show the plot
+    plt.show()
+
+# Example usage:
+# Plot AAPL, META, and SPOT along with FTSE data
+plot_stock_and_ftse(["AAPL", "META", "SPOT"], ftse)
+
 
 def risk_return_analysis(stock_data, stock_names):
     # Define a list of distinct colors
@@ -112,7 +91,7 @@ def risk_return_analysis(stock_data, stock_names):
         plt.scatter(mean_returns[i], std_returns[i], s=100, c=colors[i])
 
         # Adjust the x-axis offset for labels to remove overlap
-        label_x_offset = -40 if name in ['SONO', 'EA', 'META', 'AAPL'] else 20
+        label_x_offset = -40 if name in ['SONO', c'EA', 'META', 'AAPL'] else 20
         plt.annotate(
             name,
             xy=(mean_returns[i], std_returns[i]),
@@ -129,18 +108,16 @@ def risk_return_analysis(stock_data, stock_names):
 # Call the risk_return_analysis function with your stock data and names
 risk_return_analysis(stock_data, stock_symbols)
 
-# Call the risk_return_analysis function with your stock data and names
-risk_return_analysis(stock_data, stock_symbols)
 
-'''def annotate_heatmap(data, fmt=".2f", fontsize=10, ax=None, cmap="coolwarm"):
+def annotate_heatmap(data, fmt=".2f", fontsize=10, ax=None, cmap="coolwarm"):
     if ax is None:
         ax = plt.gca()
-    # Fill both upper and lower triangles
+    # Fill square with annotations
     mask = np.tri(data.shape[0], k=-1)
     data = np.nan_to_num(data)  # Convert NaNs to 0 for annotation
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
-            text_color = "black" if data[i, j] < 0.5 else "white"  # Adjust text color based on background
+            text_color = "black" if data[i, j] < 0.5 else "white"  # Adjust text color based on background brightness
             ax.text(
                 j + 0.5,  # Adjust text position to center
                 i + 0.5,  # Adjust text position to center
@@ -201,4 +178,3 @@ def hs_daily_returns():
         plt.savefig(f"{stock_symbols[i]}_daily_returns.png")
         plt.show()
 
-hs_daily_returns()'''
