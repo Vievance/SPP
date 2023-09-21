@@ -56,6 +56,8 @@ for symbol in stock_symbols:
     stock_df = pd.read_csv(file_path)
     stock_data.append(stock_df)
 
+ftse_data = pd.read_csv("data/FTSE.csv")
+
 def annotate_heatmap(data, fmt=".2f", fontsize=10, ax=None, cmap="coolwarm"):
     if ax is None:
         ax = plt.gca()
@@ -93,8 +95,6 @@ def heatmap():
     plt.yticks(rotation=45)
     plt.savefig("correlation_heatmap.png")
     plt.show()
-heatmap()
-
 
 def moving_average():
     ma_day = [10,20,50]
@@ -115,3 +115,62 @@ def moving_average():
         plt.ylabel('Price')
         plt.title(f"{stock_symbols[i]} Moving Averages")
         plt.savefig(f"{stock_symbols[i]}_ma.png")
+
+def plot_stock_comparison(ftse_data, stock_data, stock_names):
+    """
+    Plot a comparison of FTSE and specified stocks.
+
+    Args:
+    - ftse_data (pd.DataFrame): DataFrame containing FTSE stock data with a 'Date' column and 'Adj Close' column.
+    - stock_data (list of pd.DataFrame): List of DataFrames containing stock data for specified stocks,
+      each with a 'Date' column and 'Adj Close' column.
+    - stock_names (list of str): List of stock names corresponding to the stock_data list.
+
+    Returns:
+    - None: Displays the plot.
+    """
+
+    # Set plot style
+    sns.set_style('whitegrid')
+    plt.figure(figsize=(12, 6))
+
+    # Set 'Date' column as the index for FTSE data
+    ftse_data['Date'] = pd.to_datetime(ftse_data['Date'])
+    ftse_data.set_index('Date', inplace=True)
+
+    # Plot FTSE in red
+    plt.plot(ftse_data.index, ftse_data['Adj Close'], color='red', label='FTSE')
+
+    # Define shades of blue and green for other stocks
+    colors = ['blue', 'dodgerblue', 'deepskyblue', 'lightseagreen', 'green', 'limegreen']
+
+    # Plot other stocks in shades of blue and green
+    for i, stock_df in enumerate(stock_data):
+        color = colors[i % len(colors)]
+
+        # Set 'Date' column as the index for stock_df
+        stock_df['Date'] = pd.to_datetime(stock_df['Date'])
+        stock_df.set_index('Date', inplace=True)
+
+        plt.plot(stock_df.index, stock_df['Adj Close'], color=color, label=stock_names[i])
+
+        # Shade the area between FTSE and the stock
+        plt.fill_between(ftse_data.index, ftse_data['Adj Close'], stock_df['Adj Close'], where=(ftse_data['Adj Close'] > stock_df['Adj Close']), interpolate=True, alpha=0.2, facecolor=color)
+
+    # Set plot labels and legend
+    plt.xlabel('Date')
+    plt.ylabel('Adj Close Price')
+    plt.title('Stock Performance Comparison')
+    plt.legend(loc='best')
+
+    # Rotate x-axis labels for better visibility
+    plt.xticks(rotation=45)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
+stocks_to_compare = ['AAPL', 'SPOT', 'META']
+plot_stock_comparison(ftse_data, stock_data, stocks_to_compare)
+
+print(ftse_data.columns)
