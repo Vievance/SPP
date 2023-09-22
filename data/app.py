@@ -91,7 +91,7 @@ def risk_return_analysis(stock_data, stock_names):
         plt.scatter(mean_returns[i], std_returns[i], s=100, c=colors[i])
 
         # Adjust the x-axis offset for labels to remove overlap
-        label_x_offset = -40 if name in ['SONO', c'EA', 'META', 'AAPL'] else 20
+        label_x_offset = -40 if name in ['SONO', 'EA', 'META', 'AAPL'] else 20
         plt.annotate(
             name,
             xy=(mean_returns[i], std_returns[i]),
