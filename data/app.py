@@ -39,38 +39,48 @@ for symbol in stock_symbols:
     stock_df = pd.read_csv(file_path)
     stock_data.append(stock_df)
 
-def plot_stock_and_ftse(stock_symbols, ftse_data):
+'''def plot_stock_and_ftse(stock_symbols, ftse_data):
     # Create a color palette for blue and green shades
     colors = sns.color_palette("coolwarm", n_colors=len(stock_symbols))
-    
-    # Create a figure and axis
-    fig, ax = plt.subplots(figsize=(12, 6))
-    
+
+    # Create a figure and axis with a secondary y-axis
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+    ax2 = ax1.twinx()  # Create a secondary y-axis for FTSE data
+
     # Plot individual stock data
     for i, symbol in enumerate(stock_symbols):
         stock_df = stock_data[i]
-        ax.plot(stock_df['Date'], stock_df['Close'], label=symbol, color=colors[i])
-    
-    # Plot FTSE data in red
-    ax.plot(ftse_data['Date'], ftse_data['Close'], label='FTSE', color='red')
-    
-    # Fill the area between the blue/green lines and the red line
-    for i in range(len(stock_symbols)):
-        stock_df = stock_data[i]
-        ax.fill_between(stock_df['Date'], stock_df['Close'], ftse_data['Close'], where=(stock_df['Close'] > ftse_data['Close']), interpolate=True, color=colors[i], alpha=0.3)
-    
+        ax1.plot(range(len(stock_df)), stock_df['Adj Close'], label=symbol, color=colors[i])
+
+    # Plot FTSE data on the secondary y-axis
+    ax2.plot(range(len(ftse_data)), ftse_data['Adj Close'], label='FTSE', color='red')
+
+    # Set x-axis ticks and labels
+    x_ticks = range(len(ftse_data))
+    x_tick_labels = ftse_data['Date']  # You can use any other column for x-axis labels if needed
+    ax1.set_xticks(x_ticks)
+    ax1.set_xticklabels(x_tick_labels, rotation=45)  # Rotate x-axis labels for better readability
+
     # Set labels and legend
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Price')
-    ax.set_title('Stock Prices vs. FTSE')
-    ax.legend(loc='upper left')
-    
+    ax1.set_xlabel('Date Index')
+    ax1.set_ylabel('Stock Price')
+    ax2.set_ylabel('FTSE Price')
+    ax1.set_title('Stock Prices vs. FTSE')
+
+    # Combine legends from both axes
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    lines = lines_1 + lines_2
+    labels = labels_1 + labels_2
+
+    ax1.legend(lines, labels, loc='upper left')
+
     # Show the plot
     plt.show()
 
 # Example usage:
 # Plot AAPL, META, and SPOT along with FTSE data
-plot_stock_and_ftse(["AAPL", "META", "SPOT"], ftse)
+plot_stock_and_ftse(["AAPL", "META", "SPOT"], ftse)'''
 
 
 def risk_return_analysis(stock_data, stock_names):
@@ -102,8 +112,8 @@ def risk_return_analysis(stock_data, stock_names):
     plt.ylabel('Risk')
 
     plt.title("Risk vs. Expected Return")
-    plt.show()
     plt.savefig('Risk_Plot.png')
+    plt.show()
 
 # Call the risk_return_analysis function with your stock data and names
 risk_return_analysis(stock_data, stock_symbols)
